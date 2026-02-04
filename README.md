@@ -8,6 +8,7 @@ This repository bootstraps a v1 platform that converts chat turns into a tree/gr
 
 - `docs/v1-system-design.md`: architecture, API contracts, and event flow.
 - `docs/transformer-inference-contract.md`: parser <> transformer request/response contract.
+- `docs/operations-runbook.md`: production readiness and incident response guide.
 - `backend/`: FastAPI microservice scaffold:
   - `dialogue-service`: session and turn ingestion, context chain tracking.
   - `parser-service`: concept/relation/coreference extraction (heuristic baseline).
@@ -39,6 +40,8 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+Environment template: `backend/env.example`.
 
 Run services in separate terminals:
 

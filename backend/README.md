@@ -29,6 +29,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Environment template: `backend/env.example`.
+
 Run each service in a separate terminal:
 
 ```bash
@@ -86,4 +88,11 @@ Or run both steps:
 
 ```bash
 bash scripts/run_compose_smoke.sh
+```
+
+## CI quick check
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests
 ```

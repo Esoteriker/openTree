@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased
+
+### Highlights
+- CI workflow for backend compile and unit tests.
+- Environment template and operations runbook for production readiness.
+
 ## 0.1.0 - 2026-02-04
 
 ### Highlights

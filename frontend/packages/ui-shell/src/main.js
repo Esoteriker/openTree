@@ -1,14 +1,22 @@
 import "./components/knowledge-tree.js";
 import "./components/question-suggestions.js";
+import { OpenTreeApi } from "./api.js";
+import { createStore } from "./state.js";
 
 const STORAGE_KEY = "opentree.api_base_url";
+const DEFAULT_API_BASE_URL = "http://127.0.0.1:8101";
+const MAX_ACTIVITY = 40;
 
 class OpenTreeMVP {
   constructor() {
-    this.state = {
-      apiBaseUrl: "http://127.0.0.1:8101",
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    this.store = createStore({
+      apiBaseUrl: saved || DEFAULT_API_BASE_URL,
       sessionId: "",
-    };
+      status: "Idle",
+      activity: [],
+    });
+    this.api = new OpenTreeApi(() => this.store.getState().apiBaseUrl);
 
     this.elements = {
       apiBaseUrl: document.querySelector("#api-base-url"),
@@ -25,18 +33,36 @@ class OpenTreeMVP {
   }
 
   init() {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      this.state.apiBaseUrl = saved;
-    }
+    this.elements.apiBaseUrl.value = this.store.getState().apiBaseUrl;
 
-    this.elements.apiBaseUrl.value = this.state.apiBaseUrl;
-    this._setStatus("Idle");
+    this.store.subscribe((state) => {
+      this.elements.status.textContent = state.status;
+      this.elements.sessionId.textContent = state.sessionId || "not created";
+      this._renderActivity(state.activity);
+    });
 
     this.elements.createSession.addEventListener("click", () => this.createSession());
     this.elements.sendForm.addEventListener("submit", (event) => {
       event.preventDefault();
       this.sendTurn();
+    });
+
+    const commitApiBaseUrl = () => {
+      const raw = this.elements.apiBaseUrl.value.trim();
+      const next = raw ? raw.replace(/\/$/, "") : this.store.getState().apiBaseUrl;
+      this.elements.apiBaseUrl.value = next;
+      window.localStorage.setItem(STORAGE_KEY, next);
+      this.store.setState({ apiBaseUrl: next });
+    };
+
+    this.elements.apiBaseUrl.addEventListener("change", commitApiBaseUrl);
+    this.elements.apiBaseUrl.addEventListener("blur", commitApiBaseUrl);
+    this.elements.apiBaseUrl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        commitApiBaseUrl();
+        this.elements.apiBaseUrl.blur();
+      }
     });
 
     this.elements.suggestions.addEventListener("suggestion-picked", (event) => {
@@ -45,46 +71,36 @@ class OpenTreeMVP {
     });
   }
 
-  _headers() {
-    return {
-      "Content-Type": "application/json",
-      "X-Tenant-ID": "public",
-    };
-  }
-
   _setStatus(text) {
-    this.elements.status.textContent = text;
+    this.store.setState({ status: text });
   }
 
   _addActivity(text) {
-    const item = document.createElement("li");
-    item.textContent = text;
-    this.elements.activity.prepend(item);
+    this.store.setState((state) => {
+      const next = [text, ...state.activity].slice(0, MAX_ACTIVITY);
+      return { activity: next };
+    });
   }
 
-  _api(path) {
-    const raw = this.elements.apiBaseUrl.value.trim() || this.state.apiBaseUrl;
-    this.state.apiBaseUrl = raw.replace(/\/$/, "");
-    window.localStorage.setItem(STORAGE_KEY, this.state.apiBaseUrl);
-    return `${this.state.apiBaseUrl}${path}`;
+  _renderActivity(items) {
+    this.elements.activity.innerHTML = "";
+    items.forEach((text) => {
+      const item = document.createElement("li");
+      item.textContent = text;
+      this.elements.activity.appendChild(item);
+    });
   }
 
   async createSession() {
     this._setStatus("Creating session...");
     try {
-      const response = await fetch(this._api("/v1/sessions"), {
-        method: "POST",
-        headers: this._headers(),
-        body: JSON.stringify({ user_id: "ui-shell-user", metadata: { source: "ui-shell" } }),
+      const data = await this.api.createSession({
+        userId: "ui-shell-user",
+        metadata: { source: "ui-shell" },
       });
-      if (!response.ok) {
-        throw new Error(`Session request failed (${response.status})`);
-      }
-      const data = await response.json();
-      this.state.sessionId = data.session_id;
-      this.elements.sessionId.textContent = this.state.sessionId;
+      this.store.setState({ sessionId: data.session_id });
       this._setStatus("Session ready");
-      this._addActivity(`Session created: ${this.state.sessionId}`);
+      this._addActivity(`Session created: ${data.session_id}`);
     } catch (error) {
       this._setStatus("Session failed");
       this._addActivity(`Error: ${error.message}`);
@@ -97,29 +113,24 @@ class OpenTreeMVP {
       return;
     }
 
-    if (!this.state.sessionId) {
+    const { sessionId } = this.store.getState();
+    if (!sessionId) {
       await this.createSession();
-      if (!this.state.sessionId) {
+      if (!this.store.getState().sessionId) {
         return;
       }
     }
 
     this._setStatus("Sending turn...");
     try {
-      const response = await fetch(this._api(`/v1/sessions/${this.state.sessionId}/turns`), {
-        method: "POST",
-        headers: this._headers(),
-        body: JSON.stringify({
-          speaker: this.elements.speaker.value,
-          content,
-        }),
+      const payload = await this.api.sendTurn({
+        sessionId: this.store.getState().sessionId,
+        speaker: this.elements.speaker.value,
+        content,
       });
-      if (!response.ok) {
-        throw new Error(`Turn request failed (${response.status})`);
-      }
-      const payload = await response.json();
+      const parse = payload.parse || { concepts: [], relations: [] };
       this._addActivity(
-        `Turn ${payload.turn.turn_id}: ${payload.parse.concepts.length} concepts, ${payload.parse.relations.length} relations`
+        `Turn ${payload.turn.turn_id}: ${parse.concepts.length} concepts, ${parse.relations.length} relations`
       );
 
       this.elements.suggestions.setSuggestions(payload.suggested_questions || []);
@@ -134,14 +145,11 @@ class OpenTreeMVP {
   }
 
   async refreshGraph() {
-    const response = await fetch(this._api(`/v1/sessions/${this.state.sessionId}/graph`), {
-      method: "GET",
-      headers: this._headers(),
-    });
-    if (!response.ok) {
-      throw new Error(`Graph fetch failed (${response.status})`);
+    const { sessionId } = this.store.getState();
+    if (!sessionId) {
+      return;
     }
-    const graph = await response.json();
+    const graph = await this.api.fetchGraph(sessionId);
     this.elements.tree.setGraph(graph.concepts || [], graph.relations || []);
   }
 }

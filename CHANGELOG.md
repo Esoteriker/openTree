@@ -10,6 +10,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Post-commit summary output to keep commits visible and remind about release notes.
 - Repository metadata files for public releases.
 - Enforced changelog updates on every commit via pre-commit hook.
+- CI workflow for backend tests and compile checks.
+- Environment template for backend service configuration.
+- Operations runbook for readiness, auth, and storage incidents.
 
 ## [0.1.0] - 2026-02-04
 
