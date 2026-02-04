@@ -18,8 +18,13 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+          pip install -r requirements.txt -r requirements-dev.txt
+        working-directory: backend
       - name: Compile
-        run: python -m compileall backend/app
+        run: python -m compileall app
+        working-directory: backend
       - name: Run tests
-        run: pytest backend/tests
+        run: pytest tests
+        working-directory: backend
+        env:
+          PYTHONPATH: .

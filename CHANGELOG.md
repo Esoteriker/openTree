@@ -14,6 +14,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Environment template for backend service configuration.
 - Operations runbook for readiness, auth, and storage incidents.
 
+### Fixed
+- CI now runs backend tests from the correct working directory.
+
 ## [0.1.0] - 2026-02-04
 
 ### Added
