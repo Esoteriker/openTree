@@ -9,7 +9,11 @@ subject="$(git log -1 --pretty=%s)"
 author="$(git log -1 --pretty='%an <%ae>')"
 date="$(git log -1 --date=iso-local --pretty=%ad)"
 
-mapfile -t files < <(git diff-tree --no-commit-id --name-only -r HEAD)
+files=()
+while IFS= read -r file; do
+  [[ -n "$file" ]] || continue
+  files+=("$file")
+done < <(git diff-tree --no-commit-id --name-only -r HEAD)
 
 has_changelog=0
 has_release_notes=0
