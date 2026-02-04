@@ -7,6 +7,7 @@ This repository bootstraps a v1 platform that converts chat turns into a tree/gr
 ## What is included
 
 - `docs/v1-system-design.md`: architecture, API contracts, and event flow.
+- `docs/transformer-inference-contract.md`: parser <> transformer request/response contract.
 - `backend/`: FastAPI microservice scaffold:
   - `dialogue-service`: session and turn ingestion, context chain tracking.
   - `parser-service`: concept/relation/coreference extraction (heuristic baseline).
@@ -71,9 +72,24 @@ Then open `http://127.0.0.1:4173` to use the MVP UI:
 - send turns
 - view live graph + follow-up suggestions
 
-## Next implementation milestones
+## Current production features
 
-1. Replace parser heuristics with a fine-tuned transformer model. (Added transformer inference backend path with fallback.)
-2. Replace in-memory graph stores with Neo4j + Elasticsearch integrations. (Added repository switch with Neo4j/ES backend.)
-3. Add async event bus (Redis Streams/Kafka) for production-grade throughput. (Added Redis Streams + async job endpoints.)
-4. Add auth, tenant isolation, and encrypted data pipelines. (Added tenant headers/API key auth option + encrypted turn storage.)
+1. Parser supports transformer inference endpoint with strict contract validation and heuristic fallback.
+2. Graph service supports pluggable backends (`memory` or `neo4j` + Elasticsearch indexing).
+3. Dialogue service supports sync + async ingestion via event bus, retries, and dead-letter topic.
+4. Multi-tenant auth modes include `none`, `api_key`, and `jwt`, with encrypted turn content support.
+5. Session/turn state can persist to PostgreSQL; async jobs can persist to Redis.
+
+## Secret scanning before push
+
+Run a repository scan:
+
+```bash
+bash scripts/secret_scan.sh
+```
+
+Enable pre-commit secret scanning:
+
+```bash
+bash scripts/setup_git_hooks.sh
+```

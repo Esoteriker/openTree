@@ -2,15 +2,23 @@ from __future__ import annotations
 
 from fastapi import Depends, FastAPI, HTTPException
 
+from app.common.observability import install_request_metrics_middleware
+from app.common.readiness import summarize_checks
 from app.common.schemas import GapType, Suggestion, SuggestionRequest, SuggestionResponse
 from app.common.security import TenantContext, get_tenant_context
 
 app = FastAPI(title="suggestion-service", version="0.1.0")
+install_request_metrics_middleware(app)
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "suggestion"}
+
+
+@app.get("/ready")
+def ready() -> dict[str, object]:
+    return summarize_checks({"service": (True, "suggestion rules engine ready")})
 
 
 def _gap_to_question(gap_type: GapType, description: str) -> tuple[str, str]:

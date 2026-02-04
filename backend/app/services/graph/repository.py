@@ -394,7 +394,8 @@ class Neo4jElasticsearchRepository(GraphRepository):
             with self.driver.session() as session:
                 session.run("RETURN 1").single()
             if self.elasticsearch:
-                self.elasticsearch.ping()
+                if not self.elasticsearch.ping():
+                    return False, "elasticsearch ping failed"
             return True, "neo4j/elasticsearch graph repository ready"
         except Exception as exc:
             return False, f"graph repository not ready: {exc}"

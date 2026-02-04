@@ -13,11 +13,16 @@ services:
       EVENT_BUS_BACKEND: redis
       REDIS_URL: redis://redis:6379/0
       ASYNC_PIPELINE_ENABLED: "true"
+      SESSION_STORE_BACKEND: postgres
+      JOB_STORE_BACKEND: redis
+      POSTGRES_DSN: dbname=opentree user=opentree password=opentree host=postgres port=5432
+      AUTH_MODE: none
     depends_on:
       - parser-service
       - graph-service
       - suggestion-service
       - redis
+      - postgres
     ports:
       - "8101:8101"
 
@@ -27,7 +32,11 @@ services:
       dockerfile: Dockerfile
     command: uvicorn app.services.parser.main:app --host 0.0.0.0 --port 8102
     environment:
-      PARSER_BACKEND: heuristic
+      PARSER_BACKEND: transformer
+      TRANSFORMER_INFERENCE_URL: http://mock-transformer-service:8110/v1/infer/parse-turn
+      AUTH_MODE: none
+    depends_on:
+      - mock-transformer-service
     ports:
       - "8102:8102"
 
@@ -42,6 +51,7 @@ services:
       NEO4J_USERNAME: neo4j
       NEO4J_PASSWORD: password
       ELASTICSEARCH_URL: http://elasticsearch:9200
+      AUTH_MODE: none
     depends_on:
       - neo4j
       - elasticsearch
@@ -53,8 +63,18 @@ services:
       context: .
       dockerfile: Dockerfile
     command: uvicorn app.services.suggestion.main:app --host 0.0.0.0 --port 8104
+    environment:
+      AUTH_MODE: none
     ports:
       - "8104:8104"
+
+  mock-transformer-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn app.services.model_inference.main:app --host 0.0.0.0 --port 8110
+    ports:
+      - "8110:8110"
 
   neo4j:
     image: neo4j:5.26

@@ -4,6 +4,8 @@ import re
 
 from fastapi import FastAPI
 
+from app.common.observability import install_request_metrics_middleware
+from app.common.readiness import summarize_checks
 from app.common.schemas import GapType, RelationType
 from app.common.transformer_contract import (
     TransformerConcept,
@@ -15,6 +17,7 @@ from app.common.transformer_contract import (
 )
 
 app = FastAPI(title="mock-transformer-service", version="0.1.0")
+install_request_metrics_middleware(app)
 
 TOKEN_PATTERN = re.compile(r"[A-Za-z][A-Za-z0-9_\-]{3,}")
 
@@ -22,6 +25,11 @@ TOKEN_PATTERN = re.compile(r"[A-Za-z][A-Za-z0-9_\-]{3,}")
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "mock-transformer"}
+
+
+@app.get("/ready")
+def ready() -> dict[str, object]:
+    return summarize_checks({"service": (True, "mock transformer ready")})
 
 
 @app.post("/v1/infer/parse-turn", response_model=TransformerParseResponse)

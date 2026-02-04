@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from fastapi import Depends, FastAPI, HTTPException
 
+from app.common.observability import install_request_metrics_middleware
+from app.common.readiness import summarize_checks
 from app.common.schemas import GraphSnapshot, GraphUpsertRequest, GraphUpsertResponse
 from app.common.security import TenantContext, get_tenant_context
 from app.services.graph.repository import build_graph_repository
 
 app = FastAPI(title="graph-service", version="0.2.0")
+install_request_metrics_middleware(app)
 
 GRAPH_REPOSITORY = build_graph_repository()
 
@@ -14,6 +17,11 @@ GRAPH_REPOSITORY = build_graph_repository()
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "graph"}
+
+
+@app.get("/ready")
+def ready() -> dict[str, object]:
+    return summarize_checks({"repository": GRAPH_REPOSITORY.is_ready()})
 
 
 @app.post("/v1/graph/upsert", response_model=GraphUpsertResponse)

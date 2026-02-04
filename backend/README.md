@@ -6,6 +6,7 @@
 - `parser-service` (`8102`): concept/relation/coreference extraction (heuristic or transformer endpoint).
 - `graph-service` (`8103`): graph upsert and retrieval (in-memory or Neo4j + Elasticsearch).
 - `suggestion-service` (`8104`): follow-up question generation.
+- `mock-transformer-service` (`8110`): local/CI transformer inference contract provider.
 
 ## Run with Docker Compose (recommended)
 
@@ -18,6 +19,7 @@ App services:
 - `http://127.0.0.1:8102` parser
 - `http://127.0.0.1:8103` graph
 - `http://127.0.0.1:8104` suggestion
+- `http://127.0.0.1:8110` mock transformer inference
 
 ## Run locally (Python)
 
@@ -56,10 +58,32 @@ curl -s -X POST http://127.0.0.1:8101/v1/sessions/<session_id>/turns \
 
 ## Optional production flags
 
-- `AUTH_REQUIRED=true` + `TENANT_API_KEYS_JSON='{"public":"secret"}'` to enforce API-key auth.
+- `AUTH_MODE=api_key` + `TENANT_API_KEYS_JSON='{"public":"secret"}'` for API-key auth.
+- `AUTH_MODE=jwt` + `JWT_SECRET=...` (optional `JWT_AUDIENCE`, `JWT_ISSUER`) for bearer-token auth.
 - `CONTENT_ENCRYPTION_KEY=<fernet-key>` to encrypt persisted turn content.
 - `PARSER_BACKEND=transformer` + `TRANSFORMER_INFERENCE_URL=http://...` for model-backed parsing.
 - `GRAPH_BACKEND=neo4j` + Neo4j/Elasticsearch connection env vars for persistent graph/search.
 - `ASYNC_PIPELINE_ENABLED=true` + `EVENT_BUS_BACKEND=redis` for queued turn processing:
   - `POST /v1/sessions/{session_id}/turns/async`
   - `GET /v1/pipeline/jobs/{job_id}`
+- `SESSION_STORE_BACKEND=postgres` + `POSTGRES_DSN=...` for persistent sessions/turns.
+- `JOB_STORE_BACKEND=redis` + `REDIS_URL=...` for persistent async job status.
+
+## Readiness endpoints
+
+- `GET /ready` is exposed by all services and checks backend dependencies.
+- `GET /health` remains a lightweight liveliness check.
+
+## Smoke test
+
+Run after `docker compose up -d --build`:
+
+```bash
+python3 scripts/e2e_smoke.py
+```
+
+Or run both steps:
+
+```bash
+bash scripts/run_compose_smoke.sh
+```

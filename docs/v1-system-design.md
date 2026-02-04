@@ -122,6 +122,8 @@ Target latency for sync user path is <200ms using lightweight extraction, async 
 - Optional endpoint: `POST /v1/sessions/{session_id}/turns/async`.
 - Dialogue service publishes `turn.ingested` to event bus (`inmemory` or Redis Streams).
 - Worker consumes events, runs parser/graph/suggestion pipeline, stores job result.
+- Worker retries transient failures with exponential backoff.
+- Failed events are written to `turn.dead_letter` for triage.
 - Client polls `GET /v1/pipeline/jobs/{job_id}` for completion state.
 
 ## 6. Performance strategy
@@ -140,8 +142,17 @@ Target latency for sync user path is <200ms using lightweight extraction, async 
 - PII-aware content redaction hooks before persistence.
 - Encryption at rest for all persisted conversation and graph metadata.
 - Audit logs for node/edge edits and suggestion acceptance.
+- Auth modes: `none`, `api_key`, `jwt` (tenant claim enforced).
 
-## 8. Near-term implementation roadmap
+## 8. Reliability and operations
+
+- `GET /health` + `GET /ready` for liveliness and dependency readiness.
+- Request-id and latency middleware for all services.
+- Persistent stores:
+  - sessions/turns: PostgreSQL (`SESSION_STORE_BACKEND=postgres`)
+  - async jobs: Redis (`JOB_STORE_BACKEND=redis`)
+
+## 9. Near-term implementation roadmap
 
 1. MVP: in-memory graph + heuristic parser + manual correction UI.
 2. Beta: Neo4j integration + embedding index + auth/teams.
