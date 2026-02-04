@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "OpenTree Capture",
+  "description": "Capture AI dialogue turns and stream to OpenTree backend.",
+  "version": "0.1.0",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://chat.openai.com/*",
+    "https://chatgpt.com/*",
+    "https://claude.ai/*",
+    "https://gemini.google.com/*",
+    "http://127.0.0.1:8101/*"
+  ],
+  "action": {
+    "default_title": "OpenTree"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chat.openai.com/*",
+        "https://chatgpt.com/*",
+        "https://claude.ai/*",
+        "https://gemini.google.com/*"
+      ],
+      "js": ["src/content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

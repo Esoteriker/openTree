@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenTree MVP</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <section class="panel hero">
+        <h1>OpenTree MVP</h1>
+        <p>Live dialogue parsing into a knowledge graph</p>
+      </section>
+
+      <section class="panel controls">
+        <h2>Connection</h2>
+        <label>
+          API base URL
+          <input id="api-base-url" type="text" value="http://127.0.0.1:8101" />
+        </label>
+        <div class="row">
+          <button id="create-session" type="button">Create Session</button>
+          <span id="status" class="badge">Idle</span>
+        </div>
+        <div class="session-row">
+          Session:
+          <code id="session-id">not created</code>
+        </div>
+      </section>
+
+      <section class="panel composer">
+        <h2>Send Turn</h2>
+        <form id="send-turn-form">
+          <div class="row">
+            <select id="speaker">
+              <option value="user">user</option>
+              <option value="assistant">assistant</option>
+              <option value="system">system</option>
+            </select>
+            <button type="submit">Send</button>
+          </div>
+          <textarea
+            id="content"
+            placeholder="Type one dialogue turn, for example: 'This method improves retrieval because it keeps context.'"
+            rows="5"
+          ></textarea>
+        </form>
+        <h3>Activity</h3>
+        <ul id="activity" class="activity"></ul>
+      </section>
+
+      <section class="panel">
+        <knowledge-tree-editor></knowledge-tree-editor>
+      </section>
+
+      <section class="panel">
+        <question-suggestions></question-suggestions>
+      </section>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

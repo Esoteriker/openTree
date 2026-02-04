@@ -1,0 +1,99 @@
+version: '3.9'
+
+services:
+  dialogue-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn app.services.dialogue.main:app --host 0.0.0.0 --port 8101
+    environment:
+      PARSER_SERVICE_URL: http://parser-service:8102
+      GRAPH_SERVICE_URL: http://graph-service:8103
+      SUGGESTION_SERVICE_URL: http://suggestion-service:8104
+      EVENT_BUS_BACKEND: redis
+      REDIS_URL: redis://redis:6379/0
+      ASYNC_PIPELINE_ENABLED: "true"
+    depends_on:
+      - parser-service
+      - graph-service
+      - suggestion-service
+      - redis
+    ports:
+      - "8101:8101"
+
+  parser-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn app.services.parser.main:app --host 0.0.0.0 --port 8102
+    environment:
+      PARSER_BACKEND: heuristic
+    ports:
+      - "8102:8102"
+
+  graph-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn app.services.graph.main:app --host 0.0.0.0 --port 8103
+    environment:
+      GRAPH_BACKEND: neo4j
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USERNAME: neo4j
+      NEO4J_PASSWORD: password
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    depends_on:
+      - neo4j
+      - elasticsearch
+    ports:
+      - "8103:8103"
+
+  suggestion-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn app.services.suggestion.main:app --host 0.0.0.0 --port 8104
+    ports:
+      - "8104:8104"
+
+  neo4j:
+    image: neo4j:5.26
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/password
+    volumes:
+      - neo4j-data:/data
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: opentree
+      POSTGRES_PASSWORD: opentree
+      POSTGRES_DB: opentree
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+volumes:
+  neo4j-data:
+  es-data:
+  pg-data:

@@ -1,0 +1,167 @@
+:root {
+  --bg: #f6f2ea;
+  --ink: #1f1f1f;
+  --muted: #4a4a4a;
+  --card: #fffaf1;
+  --line: #d7c8ac;
+  --primary: #0f766e;
+  --secondary: #b45309;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 20% 10%, #f7d7ad 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, #b9e6da 0%, transparent 44%),
+    var(--bg);
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+.layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 8px 24px rgba(31, 31, 31, 0.06);
+}
+
+.hero {
+  grid-column: span 12;
+}
+
+.controls,
+.composer {
+  grid-column: span 6;
+}
+
+.panel:nth-child(4),
+.panel:nth-child(5) {
+  grid-column: span 6;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.05rem;
+  margin-bottom: 10px;
+}
+
+h3 {
+  margin-top: 12px;
+  font-size: 0.95rem;
+}
+
+p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+label,
+.session-row {
+  display: block;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  margin-top: 6px;
+  border: 1px solid #cdb994;
+  border-radius: 8px;
+  padding: 9px 10px;
+  font: inherit;
+  background: #fffdf8;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+button {
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #bccfd0;
+  background: #eef9f8;
+  color: #0c4a46;
+  font-size: 0.85rem;
+}
+
+.session-row {
+  margin-top: 10px;
+}
+
+code {
+  background: #f4ecd9;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+.activity {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  max-height: 180px;
+  overflow: auto;
+}
+
+.activity li {
+  border: 1px solid #d9ccb5;
+  border-radius: 8px;
+  background: #fff;
+  padding: 8px;
+  font-size: 0.86rem;
+}
+
+@media (max-width: 900px) {
+  .controls,
+  .composer,
+  .panel:nth-child(4),
+  .panel:nth-child(5) {
+    grid-column: span 12;
+  }
+}
