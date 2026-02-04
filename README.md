@@ -88,7 +88,7 @@ Run a repository scan:
 bash scripts/secret_scan.sh
 ```
 
-Enable git hooks (pre-commit secret scan + post-commit summary):
+Enable git hooks (pre-commit changelog check + secret scan + post-commit summary):
 
 ```bash
 bash scripts/setup_git_hooks.sh

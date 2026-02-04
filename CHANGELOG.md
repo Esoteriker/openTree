@@ -9,6 +9,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Added
 - Post-commit summary output to keep commits visible and remind about release notes.
 - Repository metadata files for public releases.
+- Enforced changelog updates on every commit via pre-commit hook.
 
 ## [0.1.0] - 2026-02-04
 

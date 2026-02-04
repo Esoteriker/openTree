@@ -2,4 +2,5 @@
 set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"
+"$ROOT/scripts/changelog_check.sh"
 "$ROOT/scripts/secret_scan.sh"
