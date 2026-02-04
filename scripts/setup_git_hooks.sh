@@ -5,6 +5,8 @@ ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$ROOT"
 
 git config core.hooksPath .githooks
-chmod +x .githooks/pre-commit scripts/secret_scan.sh
+chmod +x .githooks/pre-commit .githooks/post-commit scripts/secret_scan.sh scripts/post_commit_summary.sh
 
-echo "Git hooks installed. Commits will run scripts/secret_scan.sh."
+echo "Git hooks installed."
+echo "- Pre-commit: scripts/secret_scan.sh"
+echo "- Post-commit: scripts/post_commit_summary.sh"

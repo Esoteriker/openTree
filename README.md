@@ -88,8 +88,14 @@ Run a repository scan:
 bash scripts/secret_scan.sh
 ```
 
-Enable pre-commit secret scanning:
+Enable git hooks (pre-commit secret scan + post-commit summary):
 
 ```bash
 bash scripts/setup_git_hooks.sh
 ```
+
+## Release metadata
+
+- `CHANGELOG.md`: human-readable change history.
+- `RELEASE_NOTES.md`: curated notes for public releases.
+- `LICENSE`: MIT license text.
