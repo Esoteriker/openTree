@@ -1,0 +1,46 @@
+name: Changelog Release PR
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  open-release-pr:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Cut release section
+        id: cut
+        run: |
+          set +e
+          bash scripts/changelog_cut_release.sh
+          code="$?"
+          set -e
+          if [ "$code" -eq 10 ]; then
+            echo "No releasable entries in [Unreleased]."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$code" -ne 0 ]; then
+            exit "$code"
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Create release PR
+        if: steps.cut.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: cut changelog release section"
+          title: "chore: cut changelog release section"
+          body: |
+            Automated changelog release cut after a merged PR to main.
+          branch: codex/changelog-release
+          delete-branch: true

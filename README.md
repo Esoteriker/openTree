@@ -91,17 +91,22 @@ Run a repository scan:
 bash scripts/secret_scan.sh
 ```
 
-Enable git hooks (pre-commit changelog check + secret scan + post-commit summary):
+Enable git hooks (pre-commit changelog check + secret scan, pre-push main protection, post-commit summary):
 
 ```bash
 bash scripts/setup_git_hooks.sh
 ```
 
-Required changelog line format for each commit:
+PR-based changelog flow:
+- Update `CHANGELOG.md` under `## [Unreleased]` in every feature PR.
+- After a PR is merged to `main`, automation opens a PR that cuts a new release section (for example `0.1.1`) from `Unreleased`.
+- Merge that release PR to keep versioned history clean.
 
-```text
-- YYYY-MM-DD HH:MM +/-ZZZZ | pending | <exact commit subject>
-```
+Branch protection recommendation:
+- Protect `main` in GitHub settings with:
+- `Require a pull request before merging`
+- `Require status checks to pass before merging`
+- Add required checks: `CI / backend-tests`, `Changelog Policy / changelog-required`
 
 ## Release metadata
 
