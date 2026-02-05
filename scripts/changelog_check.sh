@@ -21,5 +21,5 @@ for file in "${staged_files[@]}"; do
 done
 
 echo "Changelog check failed: CHANGELOG.md was not updated."
-echo "Please add a changelog entry for this commit."
+echo "Please stage CHANGELOG.md with at least one new entry."
 exit 1

@@ -97,6 +97,12 @@ Enable git hooks (pre-commit changelog check + secret scan + post-commit summary
 bash scripts/setup_git_hooks.sh
 ```
 
+Required changelog line format for each commit:
+
+```text
+- YYYY-MM-DD HH:MM +/-ZZZZ | pending | <exact commit subject>
+```
+
 ## Release metadata
 
 - `CHANGELOG.md`: human-readable change history.

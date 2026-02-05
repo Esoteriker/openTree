@@ -17,6 +17,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Fixed
 - CI now runs backend tests from the correct working directory.
 
+### Commit Log
+- 2026-02-06 04:40 +0800 | pending | Enforce structured changelog entries in hook
+
 ## [0.1.0] - 2026-02-04
 
 ### Added
