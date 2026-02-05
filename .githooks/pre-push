@@ -2,4 +2,4 @@
 set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"
-"$ROOT/scripts/changelog_commit_msg_check.sh" "$1"
+"$ROOT/scripts/block_main_push.sh"

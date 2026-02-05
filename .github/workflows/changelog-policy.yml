@@ -1,0 +1,16 @@
+name: Changelog Policy
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  changelog-required:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify changelog update
+        run: bash scripts/ci_check_pr_changelog.sh
