@@ -7,6 +7,17 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ## [Unreleased]
 
 ### Added
+- _None yet._
+
+### Changed
+- _None yet._
+
+### Fixed
+- _None yet._
+
+## [0.1.1] - 2026-02-05
+
+### Added
 - Post-commit summary output to keep commits visible and remind about release notes.
 - Repository metadata files for public releases.
 - Enforced changelog updates on every commit via pre-commit hook.
@@ -19,6 +30,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Fixed
 - CI now runs backend tests from the correct working directory.
+
 
 ## [0.1.0] - 2026-02-04
 
