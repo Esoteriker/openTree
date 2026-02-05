@@ -30,6 +30,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Fixed
 - CI now runs backend tests from the correct working directory.
+- Changelog policy check now reads PR file changes via GitHub API to avoid false failures on release PRs.
 
 
 ## [0.1.0] - 2026-02-04
